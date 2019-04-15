@@ -1,4 +1,3 @@
-// var automate = false;
 var currentPlayer = "X";
 
 var checkedBoxes = [];
@@ -7,31 +6,12 @@ var turnCount = 0;
 
 var gameMode = 'PvP';
 
-// var model = getModel();
 
 document.querySelectorAll('.box').forEach((value, key) => {
     value.addEventListener("click", () => {
         onCheckBox(value);
     });
 });
-
-// function automateGame(){
-//     if(turnCount == 0){
-//         var move = computeRandomMove();
-
-//         var el  = document.querySelector(`[id='${move}']`);
-    
-//         onCheckBox(el);
-    
-//     }
-
-//     else{
-//         computerPlays();
-
-//     }
-
-
-// }
 
 function onGameModeChange(mode, _el) {
     if (_el.classList.contains('mode-selected'))
@@ -50,24 +30,18 @@ function onGameModeChange(mode, _el) {
 
 function onCheckBox(element) {
     checkedBoxes.push({ box: element.id, player: currentPlayer });
-
-    element.value = currentPlayer;
-
-    element.disabled = "disabled";
+    checkElement(element);
     turnCount++;
     var gameStatus = checkWinner();
-    // if(gameStatus != 'game on' && automate == true){
-    //     newGame();
-    //     automateGame();
-    // }
     switchPlayer();
     if (turnCount % 2 == 1 && gameStatus != 'game over' && gameStatus != 'game drawn' && gameMode == "PvC"){
         computerPlays();
-        // if(automate == true)
-        // automateGame();
     }
-        
+}
 
+function checkElement(element){
+    element.value = currentPlayer;
+    element.disabled = "disabled";
 }
 
 function onUncheckBox(element, isImplicit = false) {
@@ -87,7 +61,6 @@ function switchPlayer() {
 
 
 function checkWinner(isCheckOnly = false) {
-    //debugger;
     if (currentPlayer == "X") {
         var xs = checkedBoxes.filter(item => {
             return item.player == "X";
@@ -171,11 +144,9 @@ function showWinner(noWinner = false) {
     }
     else {
         document.querySelector('.winner-screen .body').innerHTML = 'Player ' + currentPlayer + ' Won!';
-        // document.querySelector('.winner-screen').style.display = 'block';
         document.querySelector('.winner-screen').classList.toggle('fade-in');
         document.querySelector('.winner-screen').classList.toggle('fade-out');
         document.querySelector('#score-' + currentPlayer).textContent = Number(document.querySelector('#score-' + currentPlayer).textContent) + 1;
-        //updateModel('win');
         return;
     }
 }
@@ -198,7 +169,6 @@ function newGame() {
 
 function computerPlays() {
     var nextBoxCoords;
-    //debugger;
 
     if(turnCount == 1){
         nextBoxCoords = computeFirstMove();
@@ -213,14 +183,6 @@ function computerPlays() {
     if (!nextBoxCoords)
         nextBoxCoords = predictTrappingMove();
     
-    // if (model.length) {
-    //     if (!nextBoxCoords)
-    //         nextBoxCoords = computeWinningMove();
-
-    //     if (!nextBoxCoords) {
-    //         nextBoxCoords = computeDrawMove();
-    //     }
-    // }
     if (!nextBoxCoords) {
         nextBoxCoords = computeRandomMove();
     }
@@ -370,113 +332,10 @@ function checkTrap(){
     }
 }
 
-// function computeWinningMove() {
-//     var checkedBoxesSimplified = checkedBoxes.map(b => b.box);
-//     var winningCombinations = model.filter(m => m.result == 'win'
-//         && m.winner == (turnCount + 1) % 2
-//         && JSON.stringify(m.pattern.slice(0, turnCount)) == JSON.stringify(checkedBoxesSimplified))
-//         .sort();
-
-//     var winningCount = 0;
-//     var currentCount = 0;
-//     var winningCombination;
-    
-//     for (var i = 0; i < winningCombinations.length; i++) {
-//         if (isLosingCombination(winningCombinations[i])) {
-//             continue;
-//         }
-        
-//         if (i == 0 || JSON.stringify(winningCombinations[i - 1]) == JSON.stringify(winningCombinations[i])) {
-//             currentCount++;
-//         }
-//         if (currentCount > winningCount) {
-//             winningCount = currentCount;
-//             winningCombination = winningCombinations[i];
-//         }
-//     }
-
-//     if (winningCombination){
-//         console.log('Playing Winning Move');
-//         return winningCombination.pattern[turnCount];
-//     }
-//     else
-//         return '';
-// }
-
-// function computeDrawMove() {
-//     var checkedBoxesSimplified = checkedBoxes.map(b => b.box);
-//     var drawingCombinations = model.filter(m => m.result == 'draw'
-//         && m.winner == -1
-//         && JSON.stringify(m.pattern.slice(0, turnCount)) == JSON.stringify(checkedBoxesSimplified))
-//         .sort();
-    
-//     if(!drawingCombinations)
-//         return '';
-
-//     var drawingCount = 0;
-//     var currentCount = 0;
-//     var drawingCombination;
-
-//     for (var i = 0; i < drawingCombinations.length; i++) {
-//         if (isLosingCombination(drawingCombinations[i]))
-//             continue;
-//         if (i == 0 || JSON.stringify(drawingCombinations[i - 1]) == JSON.stringify(drawingCombinations[i])) {
-//             currentCount++;
-//         }
-//         if (currentCount > drawingCount) {
-//             drawingCount = currentCount;
-//             drawingCombination = drawingCombinations[i];
-//         }
-//     }
-    
-//     if (drawingCombination){
-//         console.log('Playing Drawing Move');
-//         return drawingCombination.pattern[turnCount];
-//     }
-//     else
-//         return '';
-// }
-
 function computeRandomMove() {
     var remainingMoves = getRemainingMoves();
-    //var movesTried = 0;
     return remainingMoves[Math.floor(Math.random()*remainingMoves.length)]
-    // var randomMove;
-    // while(true)
-    // {
-    //     console.log('Trying Random Move!');
-    //     randomMove = remainingMoves[Math.floor(Math.random() * remainingMoves.length)];
-    //     remainingMoves = remainingMoves.filter(m => m != randomMove);
-    //     movesTried++;
-    //     if(!isLosingMove(randomMove)){
-    //         console.log('Playing Calculated Random Move');
-    //         return randomMove;
-    //     }
-    //     else if (isLosingMove(randomMove) && movesTried != remainingMoves.length){
-    //         console.log('Playing Any Random Move');
-    //         return getRemainingMoves()[Math.floor(Math.random() * remainingMoves.length)];
-    //     }
-    // }
 }
-
-// function isLosingCombination(combination) {
-//     //debugger;
-
-
-//     return !!model.find(m => m.result == 'win'
-//         && m.winner == (turnCount + 2) % 2 // Check Losing Combination
-//         && JSON.stringify(m.pattern) == JSON.stringify(combination.pattern))
-// }
-
-// function isLosingMove(move){
-//     var playedMoves = checkedBoxes.map(b => b.box);
-//     var appendedPlayedMoves = playedMoves.push(move);
-//     return !!model.find(m => m.result == 'win'
-//                     && m.winner == (turnCount + 2) % 2 // Check Losing Combination
-//                     && JSON.stringify(m.pattern.slice(0, turnCount+1)) == JSON.stringify(appendedPlayedMoves))
-// }
-
-
 
 function getRemainingMoves() {
     var allMoves = ['0-0', '0-1', '0-2',
@@ -486,42 +345,6 @@ function getRemainingMoves() {
     return allMoves.filter(m => !playedMoves.find(move => move == m));
 }
 
-// function updateModel(result) {
-//     showLoader();
-//     var winner = result == 'draw' ? -1 : turnCount % 2;
-//     var boxes = checkedBoxes.map(b => b.box);
-//     var box1 = transform90deg(boxes.slice());
-//     var box2 = transform90deg(box1.slice());
-//     var box3 = transform90deg(box2.slice());
-
-//     model.push({ result: result, winner: winner, pattern: boxes });
-//     model.push({ result: result, winner: winner, pattern: box1 });
-//     model.push({ result: result, winner: winner, pattern: box2 });
-//     model.push({ result: result, winner: winner, pattern: box3 });
-//     localStorage.setItem('model', JSON.stringify(model));
-//     hideLoader();
-// }
-
-// function transform90deg(boxArray) {
-//   boxArray[boxArray.indexOf('0-0')] = '0-2n';
-//   boxArray[boxArray.indexOf('0-1')] = '1-2n';
-//   boxArray[boxArray.indexOf('0-2')] = '2-2n';
-//   boxArray[boxArray.indexOf('1-0')] = '0-1n';
-//   boxArray[boxArray.indexOf('1-1')] = '1-1n';
-//   boxArray[boxArray.indexOf('1-2')] = '2-1n';
-//   boxArray[boxArray.indexOf('2-0')] = '0-0n';
-//   boxArray[boxArray.indexOf('2-1')] = '1-0n';
-//   boxArray[boxArray.indexOf('2-2')] = '2-0n';
-
-//   boxArray = boxArray.map(b => b.replace('n', ''));
-
-//   return boxArray;
-
-// }
-
-// function getModel(){
-//     return localStorage.getItem('model') ? JSON.parse(localStorage.getItem('model')) : [];
-// }
 
 
 function showLoader(){
